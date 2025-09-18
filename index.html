@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>排球輪轉計分系統</title>
+    <title>彰化師大排球聯盟</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>排球輪轉計分系統</h1>
+            <h1>彰化師大排球聯盟</h1>
         </header>
 
         <!-- 初始設定頁面 -->
@@ -19,8 +19,8 @@
                 
                 <div class="team-setup">
                     <div class="team-section">
-                        <h3>主隊設定</h3>
-                        <input type="text" id="home-team-name" placeholder="主隊名稱" value="主隊">
+                        <h3>左側設定</h3>
+                        <input type="text" id="home-team-name" placeholder="左側隊伍名稱" value="左側">
                         <div class="player-positions">
                             <h4>球員位置設定（面對球網方向）</h4>
                             <div class="court-layout">
@@ -63,8 +63,8 @@
                     </div>
                     
                     <div class="team-section">
-                        <h3>客隊設定</h3>
-                        <input type="text" id="away-team-name" placeholder="客隊名稱" value="客隊">
+                        <h3>右側設定</h3>
+                        <input type="text" id="away-team-name" placeholder="右側隊伍名稱" value="右側">
                         <div class="player-positions">
                             <h4>球員位置設定（面對球網方向）</h4>
                             <div class="court-layout">
@@ -112,16 +112,19 @@
                     <div class="serve-selection">
                         <label>
                             <input type="radio" name="initial-serve" value="home" checked>
-                            主隊發球
+                            左側發球
                         </label>
                         <label>
                             <input type="radio" name="initial-serve" value="away">
-                            客隊發球
+                            右側發球
                         </label>
                     </div>
                 </div>
 
-                <button id="start-game" class="btn-primary">開始比賽</button>
+                <div class="setup-buttons">
+                    <button id="reset-setup" class="btn-reset">初始化</button>
+                    <button id="start-game" class="btn-primary">開始比賽</button>
+                </div>
             </div>
         </div>
 
@@ -132,7 +135,7 @@
                 <div class="scoreboard">
                     <div class="team-score">
                         <div class="team-info">
-                            <h3 id="home-name">主隊</h3>
+                            <h3 id="home-name">左側</h3>
                             <div class="serve-indicator" id="home-serve">●</div>
                         </div>
                         <div class="score" id="home-score">0</div>
@@ -146,7 +149,7 @@
                     
                     <div class="team-score">
                         <div class="team-info">
-                            <h3 id="away-name">客隊</h3>
+                            <h3 id="away-name">右側</h3>
                             <div class="serve-indicator" id="away-serve">●</div>
                         </div>
                         <div class="score" id="away-score">0</div>
@@ -161,10 +164,10 @@
                 <div class="court-container">
                     <h3>場上位置（裁判視角）</h3>
                     <div class="volleyball-court-referee">
-                        <!-- 主隊場地（左側）- 面對右方 -->
+                        <!-- 左側場地 - 面對右方 -->
                         <div class="team-court home-court">
                             <div class="court-header">
-                                <span id="home-court-name">主隊</span>
+                                <span id="home-court-name">左側</span>
                             </div>
                             <div class="court-positions">
                                 <div class="court-row back-row">
@@ -187,10 +190,10 @@
                             <div class="net-line"></div>
                         </div>
 
-                        <!-- 客隊場地（右側）- 面對左方 -->
+                        <!-- 右側場地 - 面對左方 -->
                         <div class="team-court away-court">
                             <div class="court-header">
-                                <span id="away-court-name">客隊</span>
+                                <span id="away-court-name">右側</span>
                             </div>
                             <div class="court-positions">
                                 <div class="court-row front-row">
@@ -214,9 +217,69 @@
                 <div class="game-controls">
                     <button class="btn-secondary" onclick="resetScore()">重置比分</button>
                     <button class="btn-secondary" onclick="showSetup()">重新設定</button>
+                    <button class="btn-secondary" onclick="showSubstitution()">選手替換</button>
                     <div class="rotation-controls">
-                        <button class="btn-rotation home-rotation" onclick="manualRotateHome()">主隊輪轉</button>
-                        <button class="btn-rotation away-rotation" onclick="manualRotateAway()">客隊輪轉</button>
+                        <button class="btn-rotation home-rotation" onclick="manualRotateHome()">左側輪轉</button>
+                        <button class="btn-rotation away-rotation" onclick="manualRotateAway()">右側輪轉</button>
+                    </div>
+                </div>
+
+                <!-- 選手替換介面 -->
+                <div id="substitution-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>選手替換</h3>
+                            <button class="close-btn" onclick="hideSubstitution()">&times;</button>
+                        </div>
+                        
+                        <div class="substitution-container">
+                            <div class="team-substitution">
+                                <h4>左側隊伍</h4>
+                                <div class="substitution-form">
+                                    <div class="sub-row">
+                                        <label>下場球員：</label>
+                                        <select id="home-player-out">
+                                            <option value="">選擇球員</option>
+                                        </select>
+                                    </div>
+                                    <div class="sub-row">
+                                        <label>上場球員背號：</label>
+                                        <input type="number" id="home-player-in" placeholder="背號" min="1" max="99">
+                                    </div>
+                                    <button class="btn-substitute" onclick="makeSubstitution('home')">確認替換</button>
+                                </div>
+                                
+                                <div class="substitution-count">
+                                    <span>本局替換次數：<span id="home-sub-count">0</span>/6</span>
+                                </div>
+                            </div>
+
+                            <div class="team-substitution">
+                                <h4>右側隊伍</h4>
+                                <div class="substitution-form">
+                                    <div class="sub-row">
+                                        <label>下場球員：</label>
+                                        <select id="away-player-out">
+                                            <option value="">選擇球員</option>
+                                        </select>
+                                    </div>
+                                    <div class="sub-row">
+                                        <label>上場球員背號：</label>
+                                        <input type="number" id="away-player-in" placeholder="背號" min="1" max="99">
+                                    </div>
+                                    <button class="btn-substitute" onclick="makeSubstitution('away')">確認替換</button>
+                                </div>
+                                
+                                <div class="substitution-count">
+                                    <span>本局替換次數：<span id="away-sub-count">0</span>/6</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="substitution-history">
+                            <h4>替換記錄</h4>
+                            <div id="substitution-log"></div>
+                        </div>
                     </div>
                 </div>
 
