@@ -1,0 +1,579 @@
+/* 全域樣式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: white;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+}
+
+/* 頁面切換 */
+.page {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 按鈕樣式 */
+.btn-primary, .btn-secondary, .btn-score {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-primary:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-secondary {
+    background: #ff9800;
+    color: white;
+    margin: 5px;
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+}
+
+.btn-secondary:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+}
+
+.btn-score {
+    background: #2196F3;
+    color: white;
+    padding: 8px 16px;
+    margin: 2px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+}
+
+.btn-score:hover {
+    background: #1976D2;
+    transform: translateY(-1px);
+}
+
+/* 設定頁面樣式 */
+.setup-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.setup-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 2rem;
+}
+
+.team-setup {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.team-section h3 {
+    margin-bottom: 15px;
+    color: #555;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 5px;
+}
+
+.team-section input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease;
+}
+
+.team-section input[type="text"]:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.court-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.front-row-setup, .back-row-setup {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.libero-setup {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px dashed #ccc;
+}
+
+.position-input {
+    text-align: center;
+}
+
+.position-input label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.position-input input {
+    width: 60px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.position-input input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.position-input input[type="number"]::-webkit-outer-spin-button,
+.position-input input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.initial-serve {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.initial-serve h3 {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.serve-selection {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.serve-selection label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.serve-selection input[type="radio"] {
+    width: 18px;
+    height: 18px;
+}
+
+/* 比賽頁面樣式 */
+.game-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* 計分板樣式 */
+.scoreboard {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.team-score {
+    text-align: center;
+    flex: 1;
+}
+
+.team-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.team-info h3 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.serve-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #4CAF50;
+    color: transparent;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+    animation: pulse 2s infinite;
+}
+
+.serve-indicator.hidden {
+    opacity: 0.2;
+    animation: none;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.score {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #2196F3;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
+}
+
+.vs {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #666;
+    margin: 0 20px;
+}
+
+.score-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* 排球場地樣式 - 裁判視角 */
+.court-container {
+    margin-bottom: 30px;
+}
+
+.court-container h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.volleyball-court-referee {
+    display: flex;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 4px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    background: #f5f5f5;
+}
+
+.team-court {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.home-court {
+    background: linear-gradient(135deg, #c8e6c9 0%, #66bb6a 100%);
+}
+
+.away-court {
+    background: linear-gradient(135deg, #ffccbc 0%, #ff8a65 100%);
+}
+
+.court-header {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    background: rgba(255,255,255,0.8);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.court-positions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 220px;
+    justify-content: space-around;
+}
+
+.court-row {
+    display: flex;
+    justify-content: space-around;
+    flex: 1;
+    align-items: center;
+}
+
+.court-position {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.court-position:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    background: rgba(255, 255, 255, 1);
+}
+
+.court-net {
+    width: 8px;
+    background: linear-gradient(0deg, #333 0%, #666 50%, #333 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.net-line {
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        #333 0px,
+        #333 2px,
+        transparent 2px,
+        transparent 8px
+    );
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* 控制按鈕區域 */
+.game-controls {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.rotation-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-rotation {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.home-rotation {
+    background: #4CAF50;
+    color: white;
+}
+
+.home-rotation:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(76, 175, 80, 0.4);
+}
+
+.away-rotation {
+    background: #ff9800;
+    color: white;
+}
+
+.away-rotation:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(255, 152, 0, 0.4);
+}
+
+/* 輪轉記錄 */
+.rotation-log {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.rotation-log h4 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#log-content {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .team-setup {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .scoreboard {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .score {
+        font-size: 3rem;
+    }
+    
+    .serve-selection {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .front-row-setup, .back-row-setup {
+        gap: 10px;
+    }
+    
+    .position-input input {
+        width: 50px;
+        padding: 6px;
+        font-size: 12px;
+    }
+    
+    .volleyball-court-referee {
+        max-width: 100%;
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .team-court {
+        padding: 15px;
+    }
+    
+    .court-positions {
+        height: 150px;
+        gap: 10px;
+    }
+    
+    .court-position {
+        width: 45px;
+        height: 45px;
+        font-size: 14px;
+    }
+    
+    .court-header {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    
+    .court-net {
+        height: 6px;
+        width: 100%;
+    }
+    
+    .rotation-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-rotation {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .court-position {
+        width: 35px;
+        height: 35px;
+        font-size: 12px;
+    }
+    
+    .court-positions {
+        height: 120px;
+        gap: 8px;
+    }
+    
+    .team-court {
+        padding: 10px;
+    }
+    
+    .court-header {
+        font-size: 14px;
+        padding: 6px;
+    }
+}
