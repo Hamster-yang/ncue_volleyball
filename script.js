@@ -1,3 +1,4 @@
+// 遊戲狀態管理
 let gameState = {
     homeTeam: {
         name: '左側',
@@ -58,57 +59,67 @@ document.addEventListener('DOMContentLoaded', function() {
 // 初始化設定（清除所有輸入）
 function resetSetup() {
     if (confirm('確定要清除所有設定嗎？')) {
-        // 清除隊伍名稱
-        document.getElementById('home-team-name').value = '';
-        document.getElementById('away-team-name').value = '';
-        
-        // 清除左側球員背號
-        for (let i = 1; i <= 6; i++) {
-            const input = document.getElementById(`home-pos-${i}`);
-            if (input) {
-                input.value = '';
+        try {
+            // 清除隊伍名稱
+            const homeTeamInput = document.getElementById('home-team-name');
+            const awayTeamInput = document.getElementById('away-team-name');
+            if (homeTeamInput) homeTeamInput.value = '';
+            if (awayTeamInput) awayTeamInput.value = '';
+            
+            // 清除左側球員背號
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`home-pos-${i}`);
+                if (input) {
+                    input.value = '';
+                }
             }
-        }
-        
-        // 清除左側自由球員
-        const homeLiberoInput = document.getElementById('home-libero');
-        if (homeLiberoInput) {
-            homeLiberoInput.value = '';
-        }
-        
-        // 清除右側球員背號
-        for (let i = 1; i <= 6; i++) {
-            const input = document.getElementById(`away-pos-${i}`);
-            if (input) {
-                input.value = '';
+            
+            // 清除左側自由球員
+            const homeLiberoInput = document.getElementById('home-libero');
+            if (homeLiberoInput) {
+                homeLiberoInput.value = '';
             }
-        }
-        
-        // 清除右側自由球員
-        const awayLiberoInput = document.getElementById('away-libero');
-        if (awayLiberoInput) {
-            awayLiberoInput.value = '';
-        }
-        
-        // 重置發球權選擇為左側
-        document.querySelector('input[name="initial-serve"][value="home"]').checked = true;
-        
-        // 重置替換記錄
-        gameState.substitutions = {
-            home: {
-                count: 0,
-                history: []
-            },
-            away: {
-                count: 0,
-                history: []
+            
+            // 清除右側球員背號
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`away-pos-${i}`);
+                if (input) {
+                    input.value = '';
+                }
             }
-        };
-        
-        // 清除localStorage中的保存資料
-        localStorage.removeItem('volleyballGameState');
-        
-        alert('設定已清除！');
+            
+            // 清除右側自由球員
+            const awayLiberoInput = document.getElementById('away-libero');
+            if (awayLiberoInput) {
+                awayLiberoInput.value = '';
+            }
+            
+            // 重置發球權選擇為左側
+            const homeServeRadio = document.querySelector('input[name="initial-serve"][value="home"]');
+            if (homeServeRadio) {
+                homeServeRadio.checked = true;
+            }
+            
+            // 重置替換記錄
+            gameState.substitutions = {
+                home: {
+                    count: 0,
+                    history: []
+                },
+                away: {
+                    count: 0,
+                    history: []
+                }
+            };
+            
+            // 清除localStorage中的保存資料
+            localStorage.removeItem('volleyballGameState');
+            
+            alert('設定已清除！');
+        } catch (error) {
+            console.error('重置設定時發生錯誤:', error);
+            alert('重置設定時發生錯誤，請重新整理頁面後再試。');
+        }
     }
 }
 
@@ -573,59 +584,97 @@ function printGameState() {
 
 // 顯示替換介面
 function showSubstitution() {
-    const modal = document.getElementById('substitution-modal');
-    modal.classList.remove('hidden');
-    modal.classList.add('show');
-    
-    // 更新球員選項
-    updatePlayerOptions();
-    updateSubstitutionCounts();
-    updateSubstitutionLog();
+    try {
+        const modal = document.getElementById('substitution-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('show');
+            
+            // 更新球員選項
+            updatePlayerOptions();
+            updateSubstitutionCounts();
+            updateSubstitutionLog();
+        }
+    } catch (error) {
+        console.error('顯示替換介面時發生錯誤:', error);
+        alert('無法開啟替換介面，請重新整理頁面後再試。');
+    }
 }
 
 // 隱藏替換介面
 function hideSubstitution() {
-    const modal = document.getElementById('substitution-modal');
-    modal.classList.remove('show');
-    modal.classList.add('hidden');
-    
-    // 清除輸入
-    document.getElementById('home-player-out').value = '';
-    document.getElementById('home-player-in').value = '';
-    document.getElementById('away-player-out').value = '';
-    document.getElementById('away-player-in').value = '';
+    try {
+        const modal = document.getElementById('substitution-modal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.classList.add('hidden');
+        }
+        
+        // 清除輸入
+        const homePlayerOut = document.getElementById('home-player-out');
+        const homePlayerIn = document.getElementById('home-player-in');
+        const awayPlayerOut = document.getElementById('away-player-out');
+        const awayPlayerIn = document.getElementById('away-player-in');
+        
+        if (homePlayerOut) homePlayerOut.value = '';
+        if (homePlayerIn) homePlayerIn.value = '';
+        if (awayPlayerOut) awayPlayerOut.value = '';
+        if (awayPlayerIn) awayPlayerIn.value = '';
+    } catch (error) {
+        console.error('隱藏替換介面時發生錯誤:', error);
+    }
 }
 
 // 更新球員選項
 function updatePlayerOptions() {
-    const homeSelect = document.getElementById('home-player-out');
-    const awaySelect = document.getElementById('away-player-out');
-    
-    // 清除現有選項
-    homeSelect.innerHTML = '<option value="">選擇球員</option>';
-    awaySelect.innerHTML = '<option value="">選擇球員</option>';
-    
-    // 添加左側球員選項（不包含自由球員）
-    for (let i = 1; i <= 6; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = `${i}號位 - #${gameState.homeTeam.players[i]}`;
-        homeSelect.appendChild(option);
-    }
-    
-    // 添加右側球員選項（不包含自由球員）
-    for (let i = 1; i <= 6; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = `${i}號位 - #${gameState.awayTeam.players[i]}`;
-        awaySelect.appendChild(option);
+    try {
+        const homeSelect = document.getElementById('home-player-out');
+        const awaySelect = document.getElementById('away-player-out');
+        
+        if (!homeSelect || !awaySelect) {
+            console.error('找不到球員選擇元素');
+            return;
+        }
+        
+        // 清除現有選項
+        homeSelect.innerHTML = '<option value="">選擇球員</option>';
+        awaySelect.innerHTML = '<option value="">選擇球員</option>';
+        
+        // 添加左側球員選項（不包含自由球員）
+        for (let i = 1; i <= 6; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `${i}號位 - #${gameState.homeTeam.players[i]}`;
+            homeSelect.appendChild(option);
+        }
+        
+        // 添加右側球員選項（不包含自由球員）
+        for (let i = 1; i <= 6; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `${i}號位 - #${gameState.awayTeam.players[i]}`;
+            awaySelect.appendChild(option);
+        }
+    } catch (error) {
+        console.error('更新球員選項時發生錯誤:', error);
     }
 }
 
 // 更新替換次數顯示
 function updateSubstitutionCounts() {
-    document.getElementById('home-sub-count').textContent = gameState.substitutions.home.count;
-    document.getElementById('away-sub-count').textContent = gameState.substitutions.away.count;
+    try {
+        const homeCountElement = document.getElementById('home-sub-count');
+        const awayCountElement = document.getElementById('away-sub-count');
+        
+        if (homeCountElement) {
+            homeCountElement.textContent = gameState.substitutions.home.count;
+        }
+        if (awayCountElement) {
+            awayCountElement.textContent = gameState.substitutions.away.count;
+        }
+    } catch (error) {
+        console.error('更新替換次數時發生錯誤:', error);
+    }
 }
 
 // 更新替換記錄
