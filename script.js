@@ -1,4 +1,3 @@
-// 遊戲狀態管理
 let gameState = {
     homeTeam: {
         name: '左側',
