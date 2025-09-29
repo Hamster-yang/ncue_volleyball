@@ -38,7 +38,8 @@ let gameState = {
             count: 0,
             history: []
         }
-    }
+    },
+    actionHistory: [] // 操作歷史記錄
 };
 
 // 初始化應用程式
@@ -196,6 +197,7 @@ function startGame() {
     gameState.homeTeam.score = 0;
     gameState.awayTeam.score = 0;
     gameState.rotationLog = [`比賽開始 - ${gameState.homeTeam.hasServe ? gameState.homeTeam.name : gameState.awayTeam.name}發球`];
+    gameState.actionHistory = []; // 清空操作歷史
     
     // 重置替換記錄
     gameState.substitutions = {
@@ -232,20 +234,75 @@ function showSetup() {
     loadSetupFromStorage();
 }
 
+// 保存操作到歷史記錄
+function saveActionToHistory(action) {
+    // 限制歷史記錄數量（最多保留10個操作）
+    if (gameState.actionHistory.length >= 10) {
+        gameState.actionHistory.shift();
+    }
+    
+    gameState.actionHistory.push({
+        ...action,
+        timestamp: Date.now()
+    });
+    
+    updateUndoButton();
+}
+
+// 更新回溯按鈕狀態
+function updateUndoButton() {
+    const undoButton = document.querySelector('.btn-undo');
+    if (undoButton) {
+        if (gameState.actionHistory.length === 0) {
+            undoButton.disabled = true;
+            undoButton.textContent = '⟲ 回溯操作 (無操作)';
+        } else {
+            undoButton.disabled = false;
+            const lastAction = gameState.actionHistory[gameState.actionHistory.length - 1];
+            let actionText = '';
+            
+            if (lastAction.type === 'score') {
+                actionText = `撤銷${gameState[lastAction.team + 'Team'].name}得分`;
+            } else if (lastAction.type === 'rotation') {
+                actionText = `撤銷${lastAction.team === 'home' ? gameState.homeTeam.name : gameState.awayTeam.name}輪轉`;
+            } else if (lastAction.type === 'substitution') {
+                actionText = `撤銷${gameState[lastAction.team + 'Team'].name}替換`;
+            }
+            
+            undoButton.textContent = `⟲ 回溯操作 (${actionText})`;
+        }
+    }
+}
+
 // 加分功能
 function addScore(team) {
+    // 保存當前狀態到歷史記錄
+    const beforeState = {
+        type: 'score',
+        team: team,
+        homeScore: gameState.homeTeam.score,
+        awayScore: gameState.awayTeam.score,
+        homeServe: gameState.homeTeam.hasServe,
+        awayServe: gameState.awayTeam.hasServe,
+        homePlayers: { ...gameState.homeTeam.players },
+        awayPlayers: { ...gameState.awayTeam.players }
+    };
+    
     const wasHomeServing = gameState.homeTeam.hasServe;
     const wasAwayServing = gameState.awayTeam.hasServe;
     
     // 加分
     gameState[team + 'Team'].score++;
     
+    let rotated = false;
+    
     // 判斷是否需要輪轉和切換發球權
     if (team === 'home') {
-        // 主隊得分
+        // 左側得分
         if (wasAwayServing) {
             // 左側從右側手中奪回發球權，左側需要輪轉
             rotateHomeTeamClockwise();
+            rotated = true;
             gameState.homeTeam.hasServe = true;
             gameState.awayTeam.hasServe = false;
             addToLog(`${gameState.homeTeam.name}得分並奪回發球權，進行輪轉 (${gameState.homeTeam.score}:${gameState.awayTeam.score})`);
@@ -258,6 +315,7 @@ function addScore(team) {
         if (wasHomeServing) {
             // 右側從左側手中奪回發球權，右側需要輪轉
             rotateAwayTeamClockwise();
+            rotated = true;
             gameState.homeTeam.hasServe = false;
             gameState.awayTeam.hasServe = true;
             addToLog(`${gameState.awayTeam.name}得分並奪回發球權，進行輪轉 (${gameState.homeTeam.score}:${gameState.awayTeam.score})`);
@@ -267,18 +325,57 @@ function addScore(team) {
         }
     }
     
+    // 記錄操作（包含是否輪轉的資訊）
+    beforeState.rotated = rotated;
+    saveActionToHistory(beforeState);
+    
     updateDisplay();
     saveGameState();
 }
 
-// 減分功能
-function subtractScore(team) {
-    if (gameState[team + 'Team'].score > 0) {
-        gameState[team + 'Team'].score--;
-        addToLog(`${gameState[team + 'Team'].name}分數修正 -1 (${gameState.homeTeam.score}:${gameState.awayTeam.score})`);
-        updateDisplay();
-        saveGameState();
+// 回溯操作功能
+function undoLastAction() {
+    if (gameState.actionHistory.length === 0) {
+        alert('沒有可回溯的操作');
+        return;
     }
+    
+    const lastAction = gameState.actionHistory.pop();
+    
+    if (lastAction.type === 'score') {
+        // 恢復比分
+        gameState.homeTeam.score = lastAction.homeScore;
+        gameState.awayTeam.score = lastAction.awayScore;
+        
+        // 恢復發球權
+        gameState.homeTeam.hasServe = lastAction.homeServe;
+        gameState.awayTeam.hasServe = lastAction.awayServe;
+        
+        // 如果有輪轉，恢復球員位置
+        if (lastAction.rotated) {
+            gameState.homeTeam.players = { ...lastAction.homePlayers };
+            gameState.awayTeam.players = { ...lastAction.awayPlayers };
+        }
+        
+        addToLog(`回溯操作：${gameState[lastAction.team + 'Team'].name}得分已撤銷 (${gameState.homeTeam.score}:${gameState.awayTeam.score})`);
+    } else if (lastAction.type === 'rotation') {
+        // 恢復輪轉
+        gameState.homeTeam.players = { ...lastAction.homePlayers };
+        gameState.awayTeam.players = { ...lastAction.awayPlayers };
+        
+        addToLog(`回溯操作：${lastAction.team === 'home' ? gameState.homeTeam.name : gameState.awayTeam.name}輪轉已撤銷`);
+    } else if (lastAction.type === 'substitution') {
+        // 恢復替換
+        gameState[lastAction.team + 'Team'].players[lastAction.position] = lastAction.playerOut;
+        gameState.substitutions[lastAction.team].count = lastAction.subCount;
+        gameState.substitutions[lastAction.team].history = [...lastAction.subHistory];
+        
+        addToLog(`回溯操作：${gameState[lastAction.team + 'Team'].name}替換已撤銷`);
+    }
+    
+    updateDisplay();
+    updateUndoButton();
+    saveGameState();
 }
 
 // 順時針輪轉左側 (1→6→5→4→3→2→1)
@@ -305,25 +402,46 @@ function rotateAwayTeamClockwise() {
 
 // 手動輪轉左側
 function manualRotateHome() {
+    // 保存當前狀態到歷史記錄
+    const beforeState = {
+        type: 'rotation',
+        team: 'home',
+        homePlayers: { ...gameState.homeTeam.players },
+        awayPlayers: { ...gameState.awayTeam.players }
+    };
+    
     rotateHomeTeamClockwise();
     addToLog(`${gameState.homeTeam.name}手動輪轉`);
+    
+    saveActionToHistory(beforeState);
     updateDisplay();
     saveGameState();
 }
 
 // 手動輪轉右側
 function manualRotateAway() {
+    // 保存當前狀態到歷史記錄
+    const beforeState = {
+        type: 'rotation',
+        team: 'away',
+        homePlayers: { ...gameState.homeTeam.players },
+        awayPlayers: { ...gameState.awayTeam.players }
+    };
+    
     rotateAwayTeamClockwise();
     addToLog(`${gameState.awayTeam.name}手動輪轉`);
+    
+    saveActionToHistory(beforeState);
     updateDisplay();
     saveGameState();
 }
 
 // 重置比分
 function resetScore() {
-    if (confirm('確定要重置比分嗎？這將清除比分和替換記錄。')) {
+    if (confirm('確定要重置比分嗎？這將清除比分、替換記錄和操作歷史。')) {
         gameState.homeTeam.score = 0;
         gameState.awayTeam.score = 0;
+        gameState.actionHistory = []; // 清空操作歷史
         
         // 重置替換記錄
         gameState.substitutions = {
@@ -339,6 +457,7 @@ function resetScore() {
         
         addToLog('比分重置，替換記錄清除');
         updateDisplay();
+        updateUndoButton();
         saveGameState();
     }
 }
@@ -387,6 +506,9 @@ function updateDisplay() {
     
     // 更新輪轉記錄
     updateRotationLog();
+    
+    // 更新回溯按鈕狀態
+    updateUndoButton();
 }
 
 // 更新輪轉記錄
@@ -875,6 +997,17 @@ function makeSubstitution(team) {
         return;
     }
     
+    // 保存替換前的狀態到歷史記錄
+    const beforeState = {
+        type: 'substitution',
+        team: team,
+        position: position,
+        playerOut: playerOut,
+        playerIn: playerIn,
+        subCount: gameState.substitutions[team].count,
+        subHistory: [...gameState.substitutions[team].history]
+    };
+    
     // 執行替換
     gameState[team + 'Team'].players[position] = playerIn;
     
@@ -892,6 +1025,9 @@ function makeSubstitution(team) {
     
     // 添加到輪轉記錄
     addToLog(`${gameState[team + 'Team'].name}替換：${position}號位 #${playerOut} → #${playerIn}`);
+    
+    // 保存到歷史記錄
+    saveActionToHistory(beforeState);
     
     // 更新顯示
     updateDisplay();

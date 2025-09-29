@@ -176,7 +176,6 @@
                         <div class="score" id="home-score">0</div>
                         <div class="score-controls">
                             <button class="btn-score" onclick="addScore('home')">+1</button>
-                            <button class="btn-score" onclick="subtractScore('home')">-1</button>
                         </div>
                     </div>
                     
@@ -190,7 +189,6 @@
                         <div class="score" id="away-score">0</div>
                         <div class="score-controls">
                             <button class="btn-score" onclick="addScore('away')">+1</button>
-                            <button class="btn-score" onclick="subtractScore('away')">-1</button>
                         </div>
                     </div>
                 </div>
@@ -250,6 +248,7 @@
 
                 <!-- 控制按鈕 -->
                 <div class="game-controls">
+                    <button class="btn-undo" onclick="undoLastAction()">⟲ 回溯操作</button>
                     <button class="btn-secondary" onclick="resetScore()">重置比分</button>
                     <button class="btn-secondary" onclick="showSetup()">重新設定</button>
                     <button class="btn-secondary" onclick="showSubstitution()">選手替換</button>

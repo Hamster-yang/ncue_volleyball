@@ -247,6 +247,33 @@ header h1 {
     box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4);
 }
 
+.btn-undo {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    background: #FF9800;
+    color: white;
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+    margin: 5px;
+}
+
+.btn-undo:hover {
+    background: #F57C00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 152, 0, 0.4);
+}
+
+.btn-undo:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 /* 比賽頁面樣式 */
 .game-container {
     background: rgba(255, 255, 255, 0.95);
