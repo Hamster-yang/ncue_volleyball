@@ -482,17 +482,156 @@ function handleSwipe() {
 // 自動保存功能
 setInterval(saveGameState, 30000); // 每30秒自動保存一次
 
-// PWA 支援（基本）
+// PWA 支援
+let deferredPrompt;
+let installButton;
+
+// Service Worker 註冊
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('./sw.js')
             .then(function(registration) {
-                console.log('ServiceWorker 註冊成功');
+                console.log('[PWA] ServiceWorker 註冊成功:', registration.scope);
+                
+                // 檢查是否有新版本
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // 顯示更新通知
+                            showUpdateNotification();
+                        }
+                    });
+                });
             })
             .catch(function(error) {
-                console.log('ServiceWorker 註冊失敗');
+                console.log('[PWA] ServiceWorker 註冊失敗:', error);
             });
     });
+}
+
+// 監聽安裝提示事件
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('[PWA] 安裝提示事件觸發');
+    // 阻止瀏覽器的預設安裝提示
+    e.preventDefault();
+    // 保存事件，稍後使用
+    deferredPrompt = e;
+    // 顯示自定義安裝按鈕
+    showInstallPrompt();
+});
+
+// 監聽應用安裝事件
+window.addEventListener('appinstalled', (evt) => {
+    console.log('[PWA] 應用已安裝');
+    hideInstallPrompt();
+    // 可以在這裡添加分析追蹤
+});
+
+// 顯示安裝提示
+function showInstallPrompt() {
+    // 創建安裝提示元素
+    if (!document.getElementById('install-prompt')) {
+        const installPrompt = document.createElement('div');
+        installPrompt.id = 'install-prompt';
+        installPrompt.className = 'install-prompt';
+        installPrompt.innerHTML = `
+            <div class="install-prompt-content">
+                <span class="install-text">📱 安裝排球計分系統到您的裝置</span>
+                <button id="install-button" class="install-btn">安裝</button>
+                <button id="dismiss-button" class="dismiss-btn">&times;</button>
+            </div>
+        `;
+        document.body.appendChild(installPrompt);
+        
+        // 綁定事件
+        document.getElementById('install-button').addEventListener('click', installApp);
+        document.getElementById('dismiss-button').addEventListener('click', hideInstallPrompt);
+        
+        // 3秒後自動顯示
+        setTimeout(() => {
+            installPrompt.classList.add('show');
+        }, 3000);
+    }
+}
+
+// 隱藏安裝提示
+function hideInstallPrompt() {
+    const installPrompt = document.getElementById('install-prompt');
+    if (installPrompt) {
+        installPrompt.classList.remove('show');
+        setTimeout(() => {
+            installPrompt.remove();
+        }, 300);
+    }
+}
+
+// 安裝應用
+async function installApp() {
+    if (deferredPrompt) {
+        // 顯示安裝提示
+        deferredPrompt.prompt();
+        // 等待用戶響應
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`[PWA] 用戶選擇: ${outcome}`);
+        
+        if (outcome === 'accepted') {
+            console.log('[PWA] 用戶接受安裝');
+        } else {
+            console.log('[PWA] 用戶拒絕安裝');
+        }
+        
+        // 清除保存的提示
+        deferredPrompt = null;
+        hideInstallPrompt();
+    }
+}
+
+// 顯示更新通知
+function showUpdateNotification() {
+    if (!document.getElementById('update-notification')) {
+        const updateNotification = document.createElement('div');
+        updateNotification.id = 'update-notification';
+        updateNotification.className = 'update-notification';
+        updateNotification.innerHTML = `
+            <div class="update-content">
+                <span class="update-text">🔄 新版本可用</span>
+                <button id="update-button" class="update-btn">更新</button>
+                <button id="update-dismiss" class="dismiss-btn">&times;</button>
+            </div>
+        `;
+        document.body.appendChild(updateNotification);
+        
+        // 綁定事件
+        document.getElementById('update-button').addEventListener('click', () => {
+            // 通知Service Worker跳過等待
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+            }
+            window.location.reload();
+        });
+        
+        document.getElementById('update-dismiss').addEventListener('click', () => {
+            updateNotification.remove();
+        });
+        
+        // 顯示通知
+        setTimeout(() => {
+            updateNotification.classList.add('show');
+        }, 100);
+    }
+}
+
+// 檢查是否在獨立模式運行（已安裝為PWA）
+function isPWA() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true;
+}
+
+// 如果是PWA模式，添加特殊樣式
+if (isPWA()) {
+    document.body.classList.add('pwa-mode');
+    console.log('[PWA] 運行在獨立模式');
 }
 
 // 匯出/匯入功能
