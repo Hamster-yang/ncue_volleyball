@@ -1,0 +1,31 @@
+# GitHub Pages Jekyll 設定
+title: 排球輪轉計分系統
+description: 一個用於管理室內排球比賽輪轉位置與即時計分的網頁應用程式
+baseurl: "" # 如果部署在子目錄，請設定路徑，例如: "/volleyball"
+url: "" # 你的 GitHub Pages 網址，例如: "https://username.github.io"
+
+# 建置設定
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# 排除不需要處理的檔案
+exclude:
+  - README.md
+  - .gitignore
+  - .DS_Store
+
+# 包含隱藏檔案
+include:
+  - .htaccess
+
+# 插件
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# 其他設定
+timezone: Asia/Taipei
+lang: zh-TW
+
+
