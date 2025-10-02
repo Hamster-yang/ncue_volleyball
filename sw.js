@@ -1,5 +1,5 @@
-// Service Worker for 排球輪轉計分系統
-const CACHE_NAME = 'volleyball-scorer-v1.0.4';
+// Service Worker for NCUE排球聯盟
+const CACHE_NAME = 'volleyball-scorer-v1.3.2';
 const urlsToCache = [
   './',
   './index.html',
@@ -120,7 +120,7 @@ self.addEventListener('push', event => {
   console.log('[SW] 收到推送通知');
   
   const options = {
-    body: event.data ? event.data.text() : '排球計分系統通知',
+    body: event.data ? event.data.text() : 'NCUE排球聯盟通知',
     icon: './icons/icon-192x192.png',
     badge: './icons/icon-96x96.png',
     vibrate: [100, 50, 100],
@@ -142,8 +142,8 @@ self.addEventListener('push', event => {
     ]
   };
 
-  event.waitUntil(
-    self.registration.showNotification('排球計分系統', options)
+      event.waitUntil(
+    self.registration.showNotification('NCUE排球聯盟', options)
   );
 });
 

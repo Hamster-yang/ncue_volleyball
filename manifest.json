@@ -1,7 +1,7 @@
 {
-  "name": "排球輪轉計分系統",
-  "short_name": "排球計分",
-  "description": "專業的排球比賽輪轉位置與即時計分管理系統",
+  "name": "NCUE排球聯盟",
+  "short_name": "NCUE排球",
+  "description": "NCUE排球聯盟 - 專業的排球比賽輪轉位置與即時計分管理系統",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#667eea",
@@ -66,14 +66,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "桌面版排球計分系統"
+      "label": "桌面版NCUE排球聯盟"
     },
     {
       "src": "screenshots/mobile-screenshot.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "手機版排球計分系統"
+      "label": "手機版NCUE排球聯盟"
     }
   ],
   "shortcuts": [
@@ -92,3 +92,4 @@
   ],
   "prefer_related_applications": false
 }
+

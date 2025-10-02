@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>排球輪轉計分系統</title>
+    <title>NCUE排球聯盟</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="專業的排球比賽輪轉位置與即時計分管理系統，支援離線使用">
-    <meta name="keywords" content="排球,計分,輪轉,比賽,體育,離線">
-    <meta name="author" content="排球計分系統">
-    <meta name="application-name" content="排球計分">
-    <meta name="apple-mobile-web-app-title" content="排球計分">
+    <meta name="description" content="NCUE排球聯盟 - 專業的排球比賽輪轉位置與即時計分管理系統，支援離線使用">
+    <meta name="keywords" content="NCUE,排球,計分,輪轉,比賽,體育,離線">
+    <meta name="author" content="楊上賢 Hamsteryang">
+    <meta name="application-name" content="NCUE排球">
+    <meta name="apple-mobile-web-app-title" content="NCUE排球">
     
     <!-- PWA設定 -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -44,7 +44,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>排球輪轉計分系統</h1>
+            <h1>NCUE排球聯盟</h1>
         </header>
 
         <!-- 初始設定頁面 -->
@@ -160,6 +160,11 @@
                     <button id="reset-setup" class="btn-reset">初始化</button>
                     <button id="start-game" class="btn-primary">開始比賽</button>
                 </div>
+                
+                <div class="footer-info">
+                    <p>作者：楊上賢 Hamsteryang</p>
+                    <p>版本：v1.3.1</p>
+                </div>
             </div>
         </div>
 
@@ -252,6 +257,32 @@
                     <button class="btn-secondary" onclick="showSetup()">回到主頁面</button>
                     <button class="btn-secondary" onclick="showSubstitution()">選手替換</button>
                     <button class="btn-swap" onclick="swapTeamSides()">⇄ 左右交換</button>
+                    <button class="btn-timeout" onclick="showTimeout()">⏸ 暫停</button>
+                </div>
+
+                <!-- 暫停倒數計時介面 -->
+                <div id="timeout-modal" class="modal hidden">
+                    <div class="modal-content timeout-content">
+                        <div class="timeout-header">
+                            <h3>暫停計時</h3>
+                            <button class="close-btn" onclick="hideTimeout()">&times;</button>
+                        </div>
+                        
+                        <div class="timeout-display">
+                            <div class="timeout-circle">
+                                <svg class="timeout-svg" viewBox="0 0 200 200">
+                                    <circle class="timeout-circle-bg" cx="100" cy="100" r="90"></circle>
+                                    <circle class="timeout-circle-progress" cx="100" cy="100" r="90" id="timeout-progress-circle"></circle>
+                                </svg>
+                                <div class="timeout-time" id="timeout-time">30</div>
+                            </div>
+                        </div>
+
+                        <div class="timeout-controls">
+                            <button class="btn-timeout-control" onclick="resetTimeout()">重置</button>
+                            <button class="btn-timeout-control" id="timeout-toggle" onclick="toggleTimeout()">暫停</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 手動設定介面 -->

@@ -784,7 +784,7 @@ function showInstallPrompt() {
         installPrompt.className = 'install-prompt';
         installPrompt.innerHTML = `
             <div class="install-prompt-content">
-                <span class="install-text">📱 安裝排球計分系統到您的裝置</span>
+                <span class="install-text">📱 安裝NCUE排球聯盟到您的裝置</span>
                 <button id="install-button" class="install-btn">安裝</button>
                 <button id="dismiss-button" class="dismiss-btn">&times;</button>
             </div>
@@ -1224,10 +1224,167 @@ function updateUndoButtonInModal() {
     }
 }
 
+// 暫停計時相關變數
+let timeoutInterval = null;
+let timeoutSeconds = 30;
+let timeoutRunning = false;
+
+// 顯示暫停計時介面
+function showTimeout() {
+    try {
+        const modal = document.getElementById('timeout-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('show');
+            
+            // 重置計時器
+            resetTimeout();
+            // 自動開始計時
+            startTimeout();
+        }
+    } catch (error) {
+        console.error('顯示暫停計時介面時發生錯誤:', error);
+        alert('無法開啟暫停計時介面，請重新整理頁面後再試。');
+    }
+}
+
+// 隱藏暫停計時介面
+function hideTimeout() {
+    try {
+        const modal = document.getElementById('timeout-modal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.classList.add('hidden');
+            
+            // 停止計時
+            stopTimeout();
+        }
+    } catch (error) {
+        console.error('隱藏暫停計時介面時發生錯誤:', error);
+    }
+}
+
+// 開始計時
+function startTimeout() {
+    if (timeoutRunning) return;
+    
+    timeoutRunning = true;
+    updateTimeoutToggleButton();
+    
+    timeoutInterval = setInterval(() => {
+        timeoutSeconds--;
+        updateTimeoutDisplay();
+        
+        if (timeoutSeconds <= 0) {
+            stopTimeout();
+            // 播放提示音（可選）
+            playTimeoutSound();
+        }
+    }, 1000);
+}
+
+// 停止計時
+function stopTimeout() {
+    timeoutRunning = false;
+    if (timeoutInterval) {
+        clearInterval(timeoutInterval);
+        timeoutInterval = null;
+    }
+    updateTimeoutToggleButton();
+}
+
+// 切換計時狀態
+function toggleTimeout() {
+    if (timeoutRunning) {
+        stopTimeout();
+    } else {
+        if (timeoutSeconds <= 0) {
+            resetTimeout();
+        }
+        startTimeout();
+    }
+}
+
+// 重置計時器
+function resetTimeout() {
+    stopTimeout();
+    timeoutSeconds = 30;
+    updateTimeoutDisplay();
+}
+
+// 更新顯示
+function updateTimeoutDisplay() {
+    const timeDisplay = document.getElementById('timeout-time');
+    const progressCircle = document.getElementById('timeout-progress-circle');
+    
+    if (timeDisplay) {
+        timeDisplay.textContent = timeoutSeconds;
+        
+        // 時間小於等於5秒時變紅色並閃爍
+        if (timeoutSeconds <= 5) {
+            timeDisplay.style.color = '#f44336';
+            if (timeoutSeconds % 2 === 0) {
+                timeDisplay.style.transform = 'translate(-50%, -50%) scale(1.1)';
+            } else {
+                timeDisplay.style.transform = 'translate(-50%, -50%) scale(1)';
+            }
+        } else {
+            timeDisplay.style.color = '#FF5722';
+            timeDisplay.style.transform = 'translate(-50%, -50%)';
+        }
+    }
+    
+    if (progressCircle) {
+        const circumference = 565.48;
+        const progress = (timeoutSeconds / 30) * circumference;
+        progressCircle.style.strokeDashoffset = circumference - progress;
+        
+        // 時間小於等於5秒時進度條變紅
+        if (timeoutSeconds <= 5) {
+            progressCircle.style.stroke = '#f44336';
+        } else {
+            progressCircle.style.stroke = '#FF5722';
+        }
+    }
+}
+
+// 更新切換按鈕文字
+function updateTimeoutToggleButton() {
+    const toggleButton = document.getElementById('timeout-toggle');
+    if (toggleButton) {
+        toggleButton.textContent = timeoutRunning ? '暫停' : '繼續';
+    }
+}
+
+// 播放提示音（簡單的嗶聲）
+function playTimeoutSound() {
+    try {
+        // 使用 Web Audio API 播放簡單的提示音
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+        console.log('無法播放提示音:', error);
+    }
+}
+
 // 點擊模態框背景關閉
 document.addEventListener('click', function(event) {
     const substitutionModal = document.getElementById('substitution-modal');
     const manualSettingsModal = document.getElementById('manual-settings-modal');
+    const timeoutModal = document.getElementById('timeout-modal');
     
     if (event.target === substitutionModal) {
         hideSubstitution();
@@ -1235,6 +1392,10 @@ document.addEventListener('click', function(event) {
     
     if (event.target === manualSettingsModal) {
         hideManualSettings();
+    }
+    
+    if (event.target === timeoutModal) {
+        hideTimeout();
     }
 });
 

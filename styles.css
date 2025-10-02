@@ -228,6 +228,23 @@ header h1 {
     align-items: center;
 }
 
+.footer-info {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+    text-align: center;
+    color: #666;
+}
+
+.footer-info p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.footer-info p:first-child {
+    font-weight: bold;
+}
+
 .btn-reset {
     border: none;
     padding: 12px 24px;
@@ -292,6 +309,26 @@ header h1 {
     background: #7B1FA2;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(156, 39, 176, 0.4);
+}
+
+.btn-timeout {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    background: #FF5722;
+    color: white;
+    box-shadow: 0 4px 8px rgba(255, 87, 34, 0.3);
+    margin: 5px;
+}
+
+.btn-timeout:hover {
+    background: #E64A19;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 87, 34, 0.4);
 }
 
 /* 比賽頁面樣式 */
@@ -704,6 +741,103 @@ header h1 {
     border-radius: 6px;
     font-size: 14px;
     font-weight: bold;
+}
+
+/* 暫停倒數計時介面樣式 */
+.timeout-content {
+    max-width: 450px;
+}
+
+.timeout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.timeout-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.timeout-display {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.timeout-circle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.timeout-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.timeout-circle-bg {
+    fill: none;
+    stroke: #f0f0f0;
+    stroke-width: 8;
+}
+
+.timeout-circle-progress {
+    fill: none;
+    stroke: #FF5722;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+}
+
+.timeout-time {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    font-weight: bold;
+    color: #FF5722;
+}
+
+.timeout-controls {
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    border-top: 2px solid #f0f0f0;
+}
+
+.btn-timeout-control {
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    background: #2196F3;
+    color: white;
+    box-shadow: 0 3px 6px rgba(33, 150, 243, 0.3);
+}
+
+.btn-timeout-control:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(33, 150, 243, 0.4);
+}
+
+.btn-timeout-control:active {
+    transform: translateY(0);
 }
 
 /* 手動設定介面樣式 */
