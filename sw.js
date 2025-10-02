@@ -1,5 +1,5 @@
 // Service Worker for 排球輪轉計分系統
-const CACHE_NAME = 'volleyball-scorer-v1.0.0';
+const CACHE_NAME = 'volleyball-scorer-v1.0.4';
 const urlsToCache = [
   './',
   './index.html',

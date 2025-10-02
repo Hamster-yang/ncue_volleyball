@@ -12,7 +12,8 @@ let gameState = {
             5: '5',
             6: '6'
         },
-        libero: '7'
+        libero: '7',
+        liberoPositions: [] // 記錄自由球員替換的位置
     },
     awayTeam: {
         name: '右側',
@@ -26,7 +27,8 @@ let gameState = {
             5: '15',
             6: '16'
         },
-        libero: '17'
+        libero: '17',
+        liberoPositions: [] // 記錄自由球員替換的位置
     },
     rotationLog: [],
     substitutions: {
@@ -180,6 +182,7 @@ function startGame() {
         gameState.homeTeam.players[i] = input.value || `${i}`;
     }
     gameState.homeTeam.libero = document.getElementById('home-libero').value || '7';
+    gameState.homeTeam.liberoPositions = []; // 重置自由球員位置
     
     // 獲取客隊球員背號
     for (let i = 1; i <= 6; i++) {
@@ -187,6 +190,7 @@ function startGame() {
         gameState.awayTeam.players[i] = input.value || `${i+10}`;
     }
     gameState.awayTeam.libero = document.getElementById('away-libero').value || '17';
+    gameState.awayTeam.liberoPositions = []; // 重置自由球員位置
     
     // 獲取初始發球權
     const initialServe = document.querySelector('input[name="initial-serve"]:checked').value;
@@ -267,6 +271,8 @@ function updateUndoButton() {
                 actionText = `撤銷${lastAction.team === 'home' ? gameState.homeTeam.name : gameState.awayTeam.name}輪轉`;
             } else if (lastAction.type === 'substitution') {
                 actionText = `撤銷${gameState[lastAction.team + 'Team'].name}替換`;
+            } else if (lastAction.type === 'swap') {
+                actionText = `撤銷左右交換`;
             }
             
             undoButton.textContent = `⟲ 回溯操作 (${actionText})`;
@@ -285,7 +291,9 @@ function addScore(team) {
         homeServe: gameState.homeTeam.hasServe,
         awayServe: gameState.awayTeam.hasServe,
         homePlayers: { ...gameState.homeTeam.players },
-        awayPlayers: { ...gameState.awayTeam.players }
+        awayPlayers: { ...gameState.awayTeam.players },
+        homeLiberoPositions: [...gameState.homeTeam.liberoPositions],
+        awayLiberoPositions: [...gameState.awayTeam.liberoPositions]
     };
     
     const wasHomeServing = gameState.homeTeam.hasServe;
@@ -357,11 +365,27 @@ function undoLastAction() {
             gameState.awayTeam.players = { ...lastAction.awayPlayers };
         }
         
+        // 恢復自由球員位置
+        if (lastAction.homeLiberoPositions) {
+            gameState.homeTeam.liberoPositions = [...lastAction.homeLiberoPositions];
+        }
+        if (lastAction.awayLiberoPositions) {
+            gameState.awayTeam.liberoPositions = [...lastAction.awayLiberoPositions];
+        }
+        
         addToLog(`回溯操作：${gameState[lastAction.team + 'Team'].name}得分已撤銷 (${gameState.homeTeam.score}:${gameState.awayTeam.score})`);
     } else if (lastAction.type === 'rotation') {
         // 恢復輪轉
         gameState.homeTeam.players = { ...lastAction.homePlayers };
         gameState.awayTeam.players = { ...lastAction.awayPlayers };
+        
+        // 恢復自由球員位置
+        if (lastAction.homeLiberoPositions) {
+            gameState.homeTeam.liberoPositions = [...lastAction.homeLiberoPositions];
+        }
+        if (lastAction.awayLiberoPositions) {
+            gameState.awayTeam.liberoPositions = [...lastAction.awayLiberoPositions];
+        }
         
         addToLog(`回溯操作：${lastAction.team === 'home' ? gameState.homeTeam.name : gameState.awayTeam.name}輪轉已撤銷`);
     } else if (lastAction.type === 'substitution') {
@@ -371,10 +395,18 @@ function undoLastAction() {
         gameState.substitutions[lastAction.team].history = [...lastAction.subHistory];
         
         addToLog(`回溯操作：${gameState[lastAction.team + 'Team'].name}替換已撤銷`);
+    } else if (lastAction.type === 'swap') {
+        // 恢復交換
+        gameState.homeTeam = JSON.parse(JSON.stringify(lastAction.homeTeam));
+        gameState.awayTeam = JSON.parse(JSON.stringify(lastAction.awayTeam));
+        gameState.substitutions = JSON.parse(JSON.stringify(lastAction.substitutions));
+        
+        addToLog(`回溯操作：左右交換已撤銷 (${gameState.homeTeam.name} ${gameState.homeTeam.score}:${gameState.awayTeam.score} ${gameState.awayTeam.name})`);
     }
     
     updateDisplay();
     updateUndoButton();
+    updateUndoButtonInModal();
     saveGameState();
 }
 
@@ -387,6 +419,15 @@ function rotateHomeTeamClockwise() {
     gameState.homeTeam.players[4] = gameState.homeTeam.players[5];
     gameState.homeTeam.players[5] = gameState.homeTeam.players[6];
     gameState.homeTeam.players[6] = temp;
+    
+    // 同時輪轉自由球員位置
+    const newLiberoPositions = [];
+    gameState.homeTeam.liberoPositions.forEach(pos => {
+        // 位置輪轉對應: 1→6, 2→1, 3→2, 4→3, 5→4, 6→5
+        const rotationMap = {1: 6, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5};
+        newLiberoPositions.push(rotationMap[pos]);
+    });
+    gameState.homeTeam.liberoPositions = newLiberoPositions;
 }
 
 // 順時針輪轉右側 (1→6→5→4→3→2→1)
@@ -398,6 +439,15 @@ function rotateAwayTeamClockwise() {
     gameState.awayTeam.players[4] = gameState.awayTeam.players[5];
     gameState.awayTeam.players[5] = gameState.awayTeam.players[6];
     gameState.awayTeam.players[6] = temp;
+    
+    // 同時輪轉自由球員位置
+    const newLiberoPositions = [];
+    gameState.awayTeam.liberoPositions.forEach(pos => {
+        // 位置輪轉對應: 1→6, 2→1, 3→2, 4→3, 5→4, 6→5
+        const rotationMap = {1: 6, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5};
+        newLiberoPositions.push(rotationMap[pos]);
+    });
+    gameState.awayTeam.liberoPositions = newLiberoPositions;
 }
 
 // 手動輪轉左側
@@ -407,7 +457,9 @@ function manualRotateHome() {
         type: 'rotation',
         team: 'home',
         homePlayers: { ...gameState.homeTeam.players },
-        awayPlayers: { ...gameState.awayTeam.players }
+        awayPlayers: { ...gameState.awayTeam.players },
+        homeLiberoPositions: [...gameState.homeTeam.liberoPositions],
+        awayLiberoPositions: [...gameState.awayTeam.liberoPositions]
     };
     
     rotateHomeTeamClockwise();
@@ -415,6 +467,7 @@ function manualRotateHome() {
     
     saveActionToHistory(beforeState);
     updateDisplay();
+    updateUndoButtonInModal();
     saveGameState();
 }
 
@@ -425,7 +478,9 @@ function manualRotateAway() {
         type: 'rotation',
         team: 'away',
         homePlayers: { ...gameState.homeTeam.players },
-        awayPlayers: { ...gameState.awayTeam.players }
+        awayPlayers: { ...gameState.awayTeam.players },
+        homeLiberoPositions: [...gameState.homeTeam.liberoPositions],
+        awayLiberoPositions: [...gameState.awayTeam.liberoPositions]
     };
     
     rotateAwayTeamClockwise();
@@ -433,6 +488,7 @@ function manualRotateAway() {
     
     saveActionToHistory(beforeState);
     updateDisplay();
+    updateUndoButtonInModal();
     saveGameState();
 }
 
@@ -458,6 +514,7 @@ function resetScore() {
         addToLog('比分重置，替換記錄清除');
         updateDisplay();
         updateUndoButton();
+        updateUndoButtonInModal();
         saveGameState();
     }
 }
@@ -489,26 +546,76 @@ function updateDisplay() {
     document.getElementById('away-court-name').textContent = gameState.awayTeam.name;
     
     // 更新主隊球員位置（裁判視角）
-    document.getElementById('home-pos-1-display').textContent = `#${gameState.homeTeam.players[1]}`;
-    document.getElementById('home-pos-2-display').textContent = `#${gameState.homeTeam.players[2]}`;
-    document.getElementById('home-pos-3-display').textContent = `#${gameState.homeTeam.players[3]}`;
-    document.getElementById('home-pos-4-display').textContent = `#${gameState.homeTeam.players[4]}`;
-    document.getElementById('home-pos-5-display').textContent = `#${gameState.homeTeam.players[5]}`;
-    document.getElementById('home-pos-6-display').textContent = `#${gameState.homeTeam.players[6]}`;
+    updatePlayerDisplay('home', 1);
+    updatePlayerDisplay('home', 2);
+    updatePlayerDisplay('home', 3);
+    updatePlayerDisplay('home', 4);
+    updatePlayerDisplay('home', 5);
+    updatePlayerDisplay('home', 6);
     
     // 更新客隊球員位置（裁判視角）
-    document.getElementById('away-pos-1-display').textContent = `#${gameState.awayTeam.players[1]}`;
-    document.getElementById('away-pos-2-display').textContent = `#${gameState.awayTeam.players[2]}`;
-    document.getElementById('away-pos-3-display').textContent = `#${gameState.awayTeam.players[3]}`;
-    document.getElementById('away-pos-4-display').textContent = `#${gameState.awayTeam.players[4]}`;
-    document.getElementById('away-pos-5-display').textContent = `#${gameState.awayTeam.players[5]}`;
-    document.getElementById('away-pos-6-display').textContent = `#${gameState.awayTeam.players[6]}`;
+    updatePlayerDisplay('away', 1);
+    updatePlayerDisplay('away', 2);
+    updatePlayerDisplay('away', 3);
+    updatePlayerDisplay('away', 4);
+    updatePlayerDisplay('away', 5);
+    updatePlayerDisplay('away', 6);
     
     // 更新輪轉記錄
     updateRotationLog();
     
     // 更新回溯按鈕狀態
     updateUndoButton();
+}
+
+// 更新單個球員位置的顯示
+function updatePlayerDisplay(team, position) {
+    const element = document.getElementById(`${team}-pos-${position}-display`);
+    if (!element) return; // 防止元素不存在
+    
+    const teamData = gameState[team + 'Team'];
+    if (!teamData) return; // 防止資料不存在
+    
+    // 確保 liberoPositions 存在
+    if (!teamData.liberoPositions) {
+        teamData.liberoPositions = [];
+    }
+    
+    const isLibero = teamData.liberoPositions.includes(position);
+    
+    if (isLibero) {
+        element.textContent = `#${teamData.libero}`;
+        element.classList.add('libero-active');
+    } else {
+        element.textContent = `#${teamData.players[position]}`;
+        element.classList.remove('libero-active');
+    }
+}
+
+// 切換自由球員
+function toggleLibero(team, position) {
+    const teamData = gameState[team + 'Team'];
+    if (!teamData) return;
+    
+    // 確保 liberoPositions 存在
+    if (!teamData.liberoPositions) {
+        teamData.liberoPositions = [];
+    }
+    
+    const index = teamData.liberoPositions.indexOf(position);
+    
+    if (index > -1) {
+        // 如果該位置已經是自由球員，切換回原球員
+        teamData.liberoPositions.splice(index, 1);
+        addToLog(`${teamData.name} ${position}號位：#${teamData.libero} 換回 #${teamData.players[position]}`);
+    } else {
+        // 切換為自由球員
+        teamData.liberoPositions.push(position);
+        addToLog(`${teamData.name} ${position}號位：#${teamData.players[position]} 換成自由球員 #${teamData.libero}`);
+    }
+    
+    updateDisplay();
+    saveGameState();
 }
 
 // 更新輪轉記錄
@@ -538,40 +645,58 @@ function saveGameState() {
 function loadGameState() {
     const savedState = localStorage.getItem('volleyballGameState');
     if (savedState) {
-        gameState = { ...gameState, ...JSON.parse(savedState) };
+        const loaded = JSON.parse(savedState);
+        gameState = { ...gameState, ...loaded };
+        
+        // 確保 liberoPositions 存在（向後兼容舊版本）
+        if (!gameState.homeTeam.liberoPositions) {
+            gameState.homeTeam.liberoPositions = [];
+        }
+        if (!gameState.awayTeam.liberoPositions) {
+            gameState.awayTeam.liberoPositions = [];
+        }
     }
 }
 
-// 鍵盤快捷鍵
-document.addEventListener('keydown', function(event) {
-    if (document.getElementById('game-page').classList.contains('active')) {
-        switch(event.key) {
-            case '1':
-                addScore('home');
-                break;
-            case '2':
-                addScore('away');
-                break;
-            case 'h':
-            case 'H':
-                if (event.ctrlKey || event.metaKey) {
-                    event.preventDefault();
-                    manualRotateHome();
-                }
-                break;
-            case 'a':
-            case 'A':
-                if (event.ctrlKey || event.metaKey) {
-                    event.preventDefault();
-                    manualRotateAway();
-                }
-                break;
-            case 'Escape':
-                showSetup();
-                break;
-        }
-    }
-});
+// 鍵盤快捷鍵已取消
+// document.addEventListener('keydown', function(event) {
+//     // 檢查是否在輸入框或選擇框中，如果是則不處理快捷鍵
+//     const isInputField = event.target.tagName === 'INPUT' || 
+//                         event.target.tagName === 'TEXTAREA' || 
+//                         event.target.tagName === 'SELECT';
+//     
+//     if (document.getElementById('game-page').classList.contains('active')) {
+//         switch(event.key) {
+//             case '1':
+//                 if (!isInputField) {
+//                     addScore('home');
+//                 }
+//                 break;
+//             case '2':
+//                 if (!isInputField) {
+//                     addScore('away');
+//                 }
+//                 break;
+//             case 'h':
+//             case 'H':
+//                 if ((event.ctrlKey || event.metaKey) && !isInputField) {
+//                     event.preventDefault();
+//                     manualRotateHome();
+//                 }
+//                 break;
+//             case 'a':
+//             case 'A':
+//                 if ((event.ctrlKey || event.metaKey) && !isInputField) {
+//                     event.preventDefault();
+//                     manualRotateAway();
+//                 }
+//                 break;
+//             case 'Escape':
+//                 showSetup();
+//                 break;
+//         }
+//     }
+// });
 
 // 觸控支援
 let touchStartY = 0;
@@ -1042,10 +1167,124 @@ function makeSubstitution(team) {
     alert(`替換成功！${position}號位：#${playerOut} → #${playerIn}`);
 }
 
+// 顯示手動設定介面
+function showManualSettings() {
+    try {
+        const modal = document.getElementById('manual-settings-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('show');
+            
+            // 更新回溯按鈕狀態
+            updateUndoButtonInModal();
+        }
+    } catch (error) {
+        console.error('顯示手動設定介面時發生錯誤:', error);
+        alert('無法開啟手動設定介面，請重新整理頁面後再試。');
+    }
+}
+
+// 隱藏手動設定介面
+function hideManualSettings() {
+    try {
+        const modal = document.getElementById('manual-settings-modal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('隱藏手動設定介面時發生錯誤:', error);
+    }
+}
+
+// 更新模態框中的回溯按鈕狀態
+function updateUndoButtonInModal() {
+    const undoButton = document.querySelector('.btn-undo-modal');
+    if (undoButton) {
+        if (gameState.actionHistory.length === 0) {
+            undoButton.disabled = true;
+            undoButton.textContent = '⟲ 回溯操作 (無操作)';
+        } else {
+            undoButton.disabled = false;
+            const lastAction = gameState.actionHistory[gameState.actionHistory.length - 1];
+            let actionText = '';
+            
+            if (lastAction.type === 'score') {
+                actionText = `撤銷${gameState[lastAction.team + 'Team'].name}得分`;
+            } else if (lastAction.type === 'rotation') {
+                actionText = `撤銷${lastAction.team === 'home' ? gameState.homeTeam.name : gameState.awayTeam.name}輪轉`;
+            } else if (lastAction.type === 'substitution') {
+                actionText = `撤銷${gameState[lastAction.team + 'Team'].name}替換`;
+            } else if (lastAction.type === 'swap') {
+                actionText = `撤銷左右交換`;
+            }
+            
+            undoButton.textContent = `⟲ 回溯操作 (${actionText})`;
+        }
+    }
+}
+
 // 點擊模態框背景關閉
 document.addEventListener('click', function(event) {
-    const modal = document.getElementById('substitution-modal');
-    if (event.target === modal) {
+    const substitutionModal = document.getElementById('substitution-modal');
+    const manualSettingsModal = document.getElementById('manual-settings-modal');
+    
+    if (event.target === substitutionModal) {
         hideSubstitution();
     }
+    
+    if (event.target === manualSettingsModal) {
+        hideManualSettings();
+    }
 });
+
+// 交換左右兩側隊伍
+function swapTeamSides() {
+    if (!confirm('確定要交換左右兩側隊伍嗎？這將交換分數、隊名、輪轉位置及發球權。')) {
+        return;
+    }
+    
+    // 保存當前狀態到歷史記錄
+    const beforeState = {
+        type: 'swap',
+        homeTeam: JSON.parse(JSON.stringify(gameState.homeTeam)),
+        awayTeam: JSON.parse(JSON.stringify(gameState.awayTeam)),
+        substitutions: JSON.parse(JSON.stringify(gameState.substitutions))
+    };
+    
+    // 交換隊伍資料
+    const tempTeam = {
+        name: gameState.homeTeam.name,
+        score: gameState.homeTeam.score,
+        hasServe: gameState.homeTeam.hasServe,
+        players: { ...gameState.homeTeam.players },
+        libero: gameState.homeTeam.libero
+    };
+    
+    gameState.homeTeam.name = gameState.awayTeam.name;
+    gameState.homeTeam.score = gameState.awayTeam.score;
+    gameState.homeTeam.hasServe = gameState.awayTeam.hasServe;
+    gameState.homeTeam.players = { ...gameState.awayTeam.players };
+    gameState.homeTeam.libero = gameState.awayTeam.libero;
+    
+    gameState.awayTeam.name = tempTeam.name;
+    gameState.awayTeam.score = tempTeam.score;
+    gameState.awayTeam.hasServe = tempTeam.hasServe;
+    gameState.awayTeam.players = { ...tempTeam.players };
+    gameState.awayTeam.libero = tempTeam.libero;
+    
+    // 交換替換記錄
+    const tempSubstitutions = gameState.substitutions.home;
+    gameState.substitutions.home = gameState.substitutions.away;
+    gameState.substitutions.away = tempSubstitutions;
+    
+    // 記錄到日誌
+    addToLog(`左右兩側交換完成 (${gameState.homeTeam.name} ${gameState.homeTeam.score}:${gameState.awayTeam.score} ${gameState.awayTeam.name})`);
+    
+    // 保存到歷史記錄
+    saveActionToHistory(beforeState);
+    
+    // 更新顯示
+    updateDisplay();
+    saveGameState();
+}

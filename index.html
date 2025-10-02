@@ -204,16 +204,16 @@
                             </div>
                             <div class="court-positions">
                                 <div class="court-row back-row">
-                                    <div class="court-position" id="home-pos-5-display">#5</div>
-                                    <div class="court-position" id="home-pos-4-display">#4</div>
+                                    <div class="court-position" id="home-pos-5-display" onclick="toggleLibero('home', 5)">#5</div>
+                                    <div class="court-position" id="home-pos-4-display" onclick="toggleLibero('home', 4)">#4</div>
                                 </div>
                                 <div class="court-row middle-row">
-                                    <div class="court-position" id="home-pos-6-display">#6</div>
-                                    <div class="court-position" id="home-pos-3-display">#3</div>
+                                    <div class="court-position" id="home-pos-6-display" onclick="toggleLibero('home', 6)">#6</div>
+                                    <div class="court-position" id="home-pos-3-display" onclick="toggleLibero('home', 3)">#3</div>
                                 </div>
                                 <div class="court-row front-row">
-                                    <div class="court-position" id="home-pos-1-display">#1</div>
-                                    <div class="court-position" id="home-pos-2-display">#2</div>
+                                    <div class="court-position" id="home-pos-1-display" onclick="toggleLibero('home', 1)">#1</div>
+                                    <div class="court-position" id="home-pos-2-display" onclick="toggleLibero('home', 2)">#2</div>
                                 </div>
                             </div>
                         </div>
@@ -230,16 +230,16 @@
                             </div>
                             <div class="court-positions">
                                 <div class="court-row front-row">
-                                    <div class="court-position" id="away-pos-2-display">#12</div>
-                                    <div class="court-position" id="away-pos-1-display">#11</div>
+                                    <div class="court-position" id="away-pos-2-display" onclick="toggleLibero('away', 2)">#12</div>
+                                    <div class="court-position" id="away-pos-1-display" onclick="toggleLibero('away', 1)">#11</div>
                                 </div>
                                 <div class="court-row middle-row">
-                                    <div class="court-position" id="away-pos-3-display">#13</div>
-                                    <div class="court-position" id="away-pos-6-display">#16</div>
+                                    <div class="court-position" id="away-pos-3-display" onclick="toggleLibero('away', 3)">#13</div>
+                                    <div class="court-position" id="away-pos-6-display" onclick="toggleLibero('away', 6)">#16</div>
                                 </div>
                                 <div class="court-row back-row">
-                                    <div class="court-position" id="away-pos-4-display">#14</div>
-                                    <div class="court-position" id="away-pos-5-display">#15</div>
+                                    <div class="court-position" id="away-pos-4-display" onclick="toggleLibero('away', 4)">#14</div>
+                                    <div class="court-position" id="away-pos-5-display" onclick="toggleLibero('away', 5)">#15</div>
                                 </div>
                             </div>
                         </div>
@@ -248,13 +248,43 @@
 
                 <!-- 控制按鈕 -->
                 <div class="game-controls">
-                    <button class="btn-undo" onclick="undoLastAction()">⟲ 回溯操作</button>
-                    <button class="btn-secondary" onclick="resetScore()">重置比分</button>
-                    <button class="btn-secondary" onclick="showSetup()">重新設定</button>
+                    <button class="btn-secondary" onclick="showManualSettings()">手動設定</button>
+                    <button class="btn-secondary" onclick="showSetup()">回到主頁面</button>
                     <button class="btn-secondary" onclick="showSubstitution()">選手替換</button>
-                    <div class="rotation-controls">
-                        <button class="btn-rotation home-rotation" onclick="manualRotateHome()">左側輪轉</button>
-                        <button class="btn-rotation away-rotation" onclick="manualRotateAway()">右側輪轉</button>
+                    <button class="btn-swap" onclick="swapTeamSides()">⇄ 左右交換</button>
+                </div>
+
+                <!-- 手動設定介面 -->
+                <div id="manual-settings-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>手動設定</h3>
+                            <button class="close-btn" onclick="hideManualSettings()">&times;</button>
+                        </div>
+                        
+                        <div class="manual-settings-container">
+                            <div class="manual-settings-section">
+                                <h4>操作控制</h4>
+                                <div class="manual-settings-buttons">
+                                    <button class="btn-undo-modal" onclick="undoLastAction()">⟲ 回溯操作</button>
+                                </div>
+                            </div>
+
+                            <div class="manual-settings-section">
+                                <h4>輪轉控制</h4>
+                                <div class="manual-settings-buttons">
+                                    <button class="btn-rotation home-rotation" onclick="manualRotateHome()">左側輪轉</button>
+                                    <button class="btn-rotation away-rotation" onclick="manualRotateAway()">右側輪轉</button>
+                                </div>
+                            </div>
+
+                            <div class="manual-settings-section">
+                                <h4>比分控制</h4>
+                                <div class="manual-settings-buttons">
+                                    <button class="btn-reset-modal" onclick="resetScore()">重置比分</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

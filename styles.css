@@ -274,6 +274,26 @@ header h1 {
     box-shadow: none;
 }
 
+.btn-swap {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    background: #9C27B0;
+    color: white;
+    box-shadow: 0 4px 8px rgba(156, 39, 176, 0.3);
+    margin: 5px;
+}
+
+.btn-swap:hover {
+    background: #7B1FA2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(156, 39, 176, 0.4);
+}
+
 /* 比賽頁面樣式 */
 .game-container {
     background: rgba(255, 255, 255, 0.95);
@@ -432,12 +452,25 @@ header h1 {
     color: #333;
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .court-position:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     background: rgba(255, 255, 255, 1);
+}
+
+.court-position.libero-active {
+    background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);
+    border-color: #F57C00;
+    color: white;
+    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.4);
+}
+
+.court-position.libero-active:hover {
+    background: linear-gradient(135deg, #FFD54F 0%, #FFB74D 100%);
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.5);
 }
 
 .court-net {
@@ -523,16 +556,19 @@ header h1 {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s, opacity 0.3s ease;
+    pointer-events: none;
 }
 
 .modal.show {
     visibility: visible;
     opacity: 1;
+    pointer-events: auto;
 }
 
 .modal.hidden {
     visibility: hidden;
     opacity: 0;
+    pointer-events: none;
 }
 
 .modal-content {
@@ -668,6 +704,78 @@ header h1 {
     border-radius: 6px;
     font-size: 14px;
     font-weight: bold;
+}
+
+/* 手動設定介面樣式 */
+.manual-settings-container {
+    padding: 20px;
+}
+
+.manual-settings-section {
+    margin-bottom: 25px;
+}
+
+.manual-settings-section:last-child {
+    margin-bottom: 0;
+}
+
+.manual-settings-section h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.1rem;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.manual-settings-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-undo-modal {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    background: #FF9800;
+    color: white;
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+}
+
+.btn-undo-modal:hover {
+    background: #F57C00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 152, 0, 0.4);
+}
+
+.btn-undo-modal:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-reset-modal {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    background: #f44336;
+    color: white;
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+}
+
+.btn-reset-modal:hover {
+    background: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4);
 }
 
 .substitution-history {
