@@ -54,7 +54,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 綁定初始化按鈕
     document.getElementById('reset-setup').addEventListener('click', resetSetup);
-    
+
+    // 綁定設定頁輪轉與互換按鈕
+    document.getElementById('setup-rotate-home').addEventListener('click', setupRotateHome);
+    document.getElementById('setup-rotate-away').addEventListener('click', setupRotateAway);
+    document.getElementById('setup-swap-teams').addEventListener('click', setupSwapTeams);
+
+    // 明暗主題切換
+    const themeToggle = document.getElementById('theme-toggle');
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggle.checked = true;
+    }
+    themeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+
     // 載入保存的設定
     loadSetupFromStorage();
 });
@@ -124,6 +145,66 @@ function resetSetup() {
             alert('重置設定時發生錯誤，請重新整理頁面後再試。');
         }
     }
+}
+
+// 設定頁：左側球隊順時針輪轉（更新輸入欄位）
+function setupRotateHome() {
+    const ids = [1, 2, 3, 4, 5, 6].map(p => document.getElementById(`home-pos-${p}`));
+    const temp = ids[0].value;
+    ids[0].value = ids[1].value;
+    ids[1].value = ids[2].value;
+    ids[2].value = ids[3].value;
+    ids[3].value = ids[4].value;
+    ids[4].value = ids[5].value;
+    ids[5].value = temp;
+}
+
+// 設定頁：右側球隊順時針輪轉（更新輸入欄位）
+function setupRotateAway() {
+    const ids = [1, 2, 3, 4, 5, 6].map(p => document.getElementById(`away-pos-${p}`));
+    const temp = ids[0].value;
+    ids[0].value = ids[1].value;
+    ids[1].value = ids[2].value;
+    ids[2].value = ids[3].value;
+    ids[3].value = ids[4].value;
+    ids[4].value = ids[5].value;
+    ids[5].value = temp;
+}
+
+// 設定頁：左右球隊互換（交換所有輸入欄位與發球權）
+function setupSwapTeams() {
+    // 互換隊名
+    const homeName = document.getElementById('home-team-name');
+    const awayName = document.getElementById('away-team-name');
+    const tempName = homeName.value;
+    homeName.value = awayName.value;
+    awayName.value = tempName;
+
+    // 互換 1~6 號位背號
+    for (let p = 1; p <= 6; p++) {
+        const homeInput = document.getElementById(`home-pos-${p}`);
+        const awayInput = document.getElementById(`away-pos-${p}`);
+        const tempVal = homeInput.value;
+        homeInput.value = awayInput.value;
+        awayInput.value = tempVal;
+    }
+
+    // 互換自由球員
+    const homeLibero = document.getElementById('home-libero');
+    const awayLibero = document.getElementById('away-libero');
+    const tempLibero = homeLibero.value;
+    homeLibero.value = awayLibero.value;
+    awayLibero.value = tempLibero;
+
+    // 互換發球權選擇
+    const serveRadios = document.querySelectorAll('input[name="initial-serve"]');
+    serveRadios.forEach(radio => {
+        if (radio.checked) {
+            radio.checked = false;
+            const opposite = document.querySelector(`input[name="initial-serve"][value="${radio.value === 'home' ? 'away' : 'home'}"]`);
+            if (opposite) opposite.checked = true;
+        }
+    });
 }
 
 // 載入設定頁面的保存資料

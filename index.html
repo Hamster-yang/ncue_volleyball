@@ -45,6 +45,14 @@
     <div class="container">
         <header>
             <h1>NCUE排球聯盟</h1>
+            <div class="theme-toggle-wrap">
+                <span class="theme-label">淺色</span>
+                <label class="theme-switch" for="theme-toggle">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="theme-slider"></span>
+                </label>
+                <span class="theme-label">深色</span>
+            </div>
         </header>
 
         <!-- 初始設定頁面 -->
@@ -95,6 +103,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="setup-rotate-btn-wrap">
+                            <button id="setup-rotate-home" class="btn-rotation home-rotation">左側球隊輪轉</button>
+                        </div>
                     </div>
                     
                     <div class="team-section">
@@ -139,6 +150,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="setup-rotate-btn-wrap">
+                            <button id="setup-rotate-away" class="btn-rotation away-rotation">右側球隊輪轉</button>
+                        </div>
                     </div>
                 </div>
 
@@ -158,12 +172,13 @@
 
                 <div class="setup-buttons">
                     <button id="reset-setup" class="btn-reset">初始化</button>
+                    <button id="setup-swap-teams" class="btn-swap">左右球隊互換</button>
                     <button id="start-game" class="btn-primary">開始比賽</button>
                 </div>
                 
                 <div class="footer-info">
                     <p>作者：楊上賢 Hamsteryang</p>
-                    <p>版本：v1.3.1</p>
+                    <p>版本：v1.4.1</p>
                 </div>
             </div>
         </div>

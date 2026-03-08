@@ -7,9 +7,10 @@
 
 body {
     font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f0f2f5;
     min-height: 100vh;
     color: #333;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -24,10 +25,11 @@ header {
 }
 
 header h1 {
-    color: white;
+    color: #2d3748;
     font-size: 2.5rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-shadow: none;
     margin-bottom: 10px;
+    transition: color 0.3s ease;
 }
 
 /* 頁面切換 */
@@ -161,6 +163,12 @@ header h1 {
 
 .position-input {
     text-align: center;
+}
+
+.setup-rotate-btn-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
 }
 
 .position-input label {
@@ -1307,5 +1315,262 @@ header h1 {
     .install-text,
     .update-text {
         min-width: auto;
+    }
+}
+
+/* ==================== 明暗切換開關 ==================== */
+.theme-toggle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.theme-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #555;
+    transition: color 0.3s ease;
+    user-select: none;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.theme-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #c8d0da;
+    border-radius: 28px;
+    transition: background 0.3s ease;
+}
+
+.theme-slider::before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease, background 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.theme-switch input:checked + .theme-slider {
+    background: #4a5568;
+}
+
+.theme-switch input:checked + .theme-slider::before {
+    transform: translateX(26px);
+    background: #e2e8f0;
+}
+
+/* ==================== 深色模式 ==================== */
+body.dark-mode {
+    background: #0f1117;
+    color: #e2e8f0;
+}
+
+body.dark-mode header h1 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .theme-label {
+    color: #a0aec0;
+}
+
+body.dark-mode .setup-container {
+    background: #1e2030;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .setup-container h2 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .team-section h3 {
+    color: #a0aec0;
+}
+
+body.dark-mode .player-positions h4 {
+    color: #a0aec0;
+}
+
+body.dark-mode .team-section input[type="text"] {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .team-section input[type="text"]:focus {
+    border-color: #4CAF50;
+}
+
+body.dark-mode .position-input label {
+    color: #a0aec0;
+}
+
+body.dark-mode .position-input input {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .libero-setup {
+    border-top-color: #4a5568;
+}
+
+body.dark-mode .initial-serve h3 {
+    color: #a0aec0;
+}
+
+body.dark-mode .serve-selection label {
+    color: #cbd5e0;
+}
+
+body.dark-mode .footer-info p {
+    color: #718096;
+}
+
+body.dark-mode .game-container {
+    background: #1e2030;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .scoreboard {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .team-info h3 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .vs {
+    color: #a0aec0;
+}
+
+body.dark-mode .court-container h3 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .volleyball-court-referee {
+    border-color: #4a5568;
+    background: #2d3748;
+}
+
+body.dark-mode .court-header {
+    background: rgba(0, 0, 0, 0.4);
+    color: #e2e8f0;
+}
+
+body.dark-mode .game-controls h3 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .modal-content {
+    background: #1e2030;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .modal-body {
+    background: #1e2030;
+}
+
+body.dark-mode .team-substitution {
+    border-color: #4a5568;
+}
+
+body.dark-mode .team-substitution h4 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .sub-row label {
+    color: #a0aec0;
+}
+
+body.dark-mode .sub-row select,
+body.dark-mode .sub-row input {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .sub-row select:focus,
+body.dark-mode .sub-row input:focus {
+    border-color: #4CAF50;
+}
+
+body.dark-mode .substitution-count {
+    background: #161b27;
+    color: #a0aec0;
+}
+
+body.dark-mode .rotation-log {
+    background: #161b27;
+    border-left-color: #4CAF50;
+}
+
+body.dark-mode .rotation-log h4 {
+    color: #e2e8f0;
+}
+
+body.dark-mode #log-content {
+    color: #a0aec0;
+}
+
+body.dark-mode .timeout-content {
+    color: #e2e8f0;
+}
+
+body.dark-mode .timeout-info {
+    color: #a0aec0;
+}
+
+body.dark-mode .timeout-teams {
+    color: #a0aec0;
+}
+
+@media (max-width: 768px) {
+    .theme-toggle-wrap {
+        gap: 8px;
+    }
+
+    .theme-label {
+        font-size: 12px;
+    }
+
+    .theme-switch {
+        width: 46px;
+        height: 24px;
+    }
+
+    .theme-slider::before {
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+    }
+
+    .theme-switch input:checked + .theme-slider::before {
+        transform: translateX(22px);
     }
 }
